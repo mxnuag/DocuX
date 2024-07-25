@@ -1,22 +1,34 @@
 import React, { useRef, useState } from 'react';
 import Card from './Card';
 import Modal from './Modal';
+import Notification from './Notification';
 
 function Fore() {
     const ref = useRef(null);
     const [cards, setCards] = useState([
-        { id: 1, desc: "Lorem ipsum dolor sit amet consectetur adipisicing", filesize: ".9mb", close: false, tag: { isOpen: true, tagTitle: "Download Now", tagColor: "green" } },
-        { id: 2, desc: "Lorem ipsum dolor sit amet consectetur adipisicing", filesize: ".4mb", close: false, tag: { isOpen: true, tagTitle: "Download Now", tagColor: "blue" } },
-        { id: 3, desc: "Lorem ipsum dolor sit amet consectetur adipisicing", filesize: ".6mb", close: false, tag: { isOpen: true, tagTitle: "Upload", tagColor: "green" } }
+        { id: 1, desc: "This is a sample docuement", filesize: ".9mb", close: false, tag: { isOpen: true, tagTitle: "Download Now", tagColor: "green" } },
+        { id: 2, desc: "You can add yours as well", filesize: ".4mb", close: false, tag: { isOpen: true, tagTitle: "Download Now", tagColor: "blue" } },
+        { id: 3, desc: "Fun Fact: 'Try draging your docuement'", filesize: ".6mb", close: false, tag: { isOpen: true, tagTitle: "Upload", tagColor: "green" } }
     ]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [notification, setNotification] = useState({ message: '', isVisible: false, type: '' });
 
     const addCard = (newCard) => {
+        if (!newCard.desc || !newCard.filesize || !newCard.tag.tagTitle) {
+            setNotification({ message: 'All fields are required!', isVisible: true, type: 'error' });
+            setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
+            return;
+        }
+
         setCards([...cards, { ...newCard, id: Date.now(), tag: { ...newCard.tag, isOpen: true } }]);
+        setNotification({ message: 'Card added successfully!', isVisible: true, type: 'add' });
+        setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
     };
 
     const deleteCard = (id) => {
         setCards(cards.filter(card => card.id !== id));
+        setNotification({ message: 'Card deleted successfully!', isVisible: true, type: 'delete' });
+        setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
     };
 
     return (
@@ -40,6 +52,12 @@ function Fore() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={addCard}
+            />
+
+            <Notification
+                message={notification.message}
+                isVisible={notification.isVisible}
+                type={notification.type}
             />
         </div>
     );
