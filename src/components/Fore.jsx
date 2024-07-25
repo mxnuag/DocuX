@@ -22,19 +22,20 @@ function Fore() {
     return (
         <div ref={ref} className='fixed top-0 left-0 z-[3] w-full h-full flex gap-20 flex-wrap p-5'>
             {cards.map((item) => (
-                <Card 
-                    key={item.id} 
-                    data={item} 
+                <Card
+                    key={item.id}
+                    data={item}
                     reference={ref}
-                    onDelete={() => deleteCard(item.id)} 
+                    onDelete={() => deleteCard(item.id)}
                 />
             ))}
             <button
                 onClick={() => setIsModalOpen(true)}
-                className="fixed bottom-10 right-10 bg-blue-500 text-white px-4 py-2 rounded"
+                className="fixed bottom-10 right-10 bg-blue-500 hover:bg-blue-700 hover:scale-110 transform transition-transform duration-300 ease-in-out shadow-lg hover:shadow-xl text-white px-7 py-4 rounded"
             >
                 Add Card
             </button>
+
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

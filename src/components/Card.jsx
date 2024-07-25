@@ -10,6 +10,15 @@ function Card({ data, reference, onDelete }) {
     const tagColor = tag.tagColor || 'green'; // Default to 'green'
     const isTagOpen = tag.isOpen !== undefined ? tag.isOpen : true; // Default to true
 
+    const handleDownload = () => {
+        const element = document.createElement("a");
+        const file = new Blob([JSON.stringify(data)], { type: "application/json" });
+        element.href = URL.createObjectURL(file);
+        element.download = "card_info.json";
+        document.body.appendChild(element);
+        element.click();
+    };
+
     return (
         <motion.div
             drag
@@ -23,7 +32,7 @@ function Card({ data, reference, onDelete }) {
             <div className='footer absolute bottom-0 w-full py-3 left-0'>
                 <div className='flex items-center justify-between px-8 py-3 mb-3 bottom-0'>
                     <h5>{data.filesize}</h5>
-                    <span className='w-7 h-7 bg-zinc-600 rounded-full flex items-center justify-center'>
+                    <span className='w-7 h-7 bg-zinc-600 rounded-full flex items-center justify-center hover:bg-zinc-500 cursor-pointer' onClick={handleDownload}>
                         {data.close ? <MdOutlineCloseFullscreen /> : <LuDownloadCloud size="0.7em" color='#000' />}
                     </span>
                 </div>
@@ -36,7 +45,7 @@ function Card({ data, reference, onDelete }) {
 
                 <button
                     onClick={onDelete}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded"
+                    className="absolute top-0 right-2 bg-red-500 hover:bg-red-700 text-white p-1 rounded"
                 >
                     <MdDelete />
                 </button>
