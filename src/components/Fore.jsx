@@ -2,18 +2,36 @@ import React, { useRef, useState } from 'react';
 import Card from './Card';
 import Modal from './Modal';
 import Notification from './Notification';
+import { GoogleLogin } from '@react-oauth/google';
 
 function Fore() {
     const ref = useRef(null);
     const [cards, setCards] = useState([
-        { id: 1, desc: "This is a sample docuement", filesize: ".9mb", close: false, tag: { isOpen: true, tagTitle: "Download Now", tagColor: "green" } },
+        { id: 1, desc: "This is a sample document", filesize: ".9mb", close: false, tag: { isOpen: true, tagTitle: "Download Now", tagColor: "green" } },
         { id: 2, desc: "You can add yours as well", filesize: ".4mb", close: false, tag: { isOpen: true, tagTitle: "Download Now", tagColor: "blue" } },
-        { id: 3, desc: "Fun Fact: 'Try draging your docuement'", filesize: ".6mb", close: false, tag: { isOpen: true, tagTitle: "Upload", tagColor: "green" } }
+        { id: 3, desc: "Fun Fact: 'Try dragging your document'", filesize: ".6mb", close: false, tag: { isOpen: true, tagTitle: "Upload", tagColor: "green" } }
     ]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [notification, setNotification] = useState({ message: '', isVisible: false, type: '' });
+    const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
+
+    const handleLoginSuccess = (response) => {
+        console.log("Login successful:", response);
+        setIsAuthenticated(true);
+    };
+
+    const handleLoginFailure = (response) => {
+        console.log("Login failed:", response);
+        setIsAuthenticated(false);
+    };
 
     const addCard = (newCard) => {
+        if (!isAuthenticated) {
+            setNotification({ message: 'Sign in to add new cards.', isVisible: true, type: 'error' });
+            setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
+            return;
+        }
+
         if (!newCard.desc || !newCard.filesize || !newCard.tag.tagTitle) {
             setNotification({ message: 'All fields are required!', isVisible: true, type: 'error' });
             setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
@@ -33,6 +51,25 @@ function Fore() {
 
     return (
         <div ref={ref} className='fixed top-0 left-0 z-[3] w-full h-full flex gap-20 flex-wrap p-5'>
+            {/* Google Sign-In Button */}
+            <div className="fixed top-5 right-5 z-50">
+                {!isAuthenticated ? (
+                    <GoogleLogin
+                        onSuccess={handleLoginSuccess}
+                        onError={handleLoginFailure}
+                        buttonText="Sign In with Google"
+                        onClick={() => console.log('Google Sign-In button clicked')}
+                    />
+                ) : (
+                    <button
+                        onClick={() => setIsAuthenticated(false)}
+                        className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
+                    >
+                        Sign Out
+                    </button>
+                )}
+            </div>
+
             {cards.map((item) => (
                 <Card
                     key={item.id}
@@ -42,7 +79,14 @@ function Fore() {
                 />
             ))}
             <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => {
+                    if (!isAuthenticated) {
+                        setNotification({ message: 'Please Sign in to make your docs.', isVisible: true, type: 'error' });
+                        setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
+                    } else {
+                        setIsModalOpen(true);
+                    }
+                }}
                 className="fixed bottom-10 right-10 bg-blue-500 hover:bg-blue-700 hover:scale-110 transform transition-transform duration-300 ease-in-out shadow-lg hover:shadow-xl text-white px-7 py-4 rounded"
             >
                 Add Card
