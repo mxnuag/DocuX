@@ -4,19 +4,33 @@ import { LuDownloadCloud } from "react-icons/lu";
 import { MdOutlineCloseFullscreen, MdDelete } from "react-icons/md";
 import { motion } from "framer-motion";
 
-function Card({ data, reference, onDelete }) {
+function Card({ data, reference, onDelete, isAuthenticated }) {
     const tag = data.tag || {};
     const tagTitle = tag.tagTitle || ''; // Ensure tagTitle is a string
     const tagColor = tag.tagColor || 'none'; // Default to 'none'
     const isTagOpen = tag.isOpen !== undefined ? tag.isOpen : true; // Default to true
 
     const handleDownload = () => {
+        if (!isAuthenticated) {
+            alert("Please Sign in to download cards.");
+            return;
+        }
+
         const element = document.createElement("a");
         const file = new Blob([JSON.stringify(data)], { type: "application/json" });
         element.href = URL.createObjectURL(file);
         element.download = "card_info.json";
         document.body.appendChild(element);
         element.click();
+    };
+
+    const handleDelete = (event) => {
+        event.stopPropagation(); // Prevents triggering other event listeners
+        if (!isAuthenticated) {
+            alert("Please Sign in to delete cards.");
+            return;
+        }
+        onDelete(data.id); // Pass card ID to delete function
     };
 
     return (
@@ -32,9 +46,12 @@ function Card({ data, reference, onDelete }) {
             <div className='footer absolute bottom-0 w-full py-3 left-0'>
                 <div className='flex items-center justify-between px-8 py-3 mb-3 bottom-0'>
                     <h5>{data.filesize}</h5>
-                    <span className='w-7 h-7 bg-zinc-600 rounded-full flex items-center justify-center cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-110 hover:text-blue-500'>
+                    <span
+                        className='w-7 h-7 bg-zinc-600 rounded-full flex items-center justify-center cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-110 hover:text-blue-500'
+                        onClick={handleDownload}
+                    >
                         {data.close ? <MdOutlineCloseFullscreen /> : 
-                        <LuDownloadCloud size="0.7em" color='#000' onClick={handleDownload} className='transform transition-transform duration-300 ease-in-out hover:text-blue-500' />}
+                        <LuDownloadCloud size="0.7em" color='#000' />}
                     </span>
                 </div>
 
@@ -54,7 +71,7 @@ function Card({ data, reference, onDelete }) {
                 )}
 
                 <button
-                    onClick={onDelete}
+                    onClick={handleDelete}
                     className="absolute top-2 right-2 bg-red-500 hover:bg-red-700 text-white p-1 rounded transform transition-transform duration-300 ease-in-out hover:scale-110"
                 >
                     <MdDelete />

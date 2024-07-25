@@ -14,20 +14,24 @@ function Fore() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [notification, setNotification] = useState({ message: '', isVisible: false, type: '' });
     const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
+    const [userName, setUserName] = useState(''); // Store user name
 
     const handleLoginSuccess = (response) => {
         console.log("Login successful:", response);
+        const userInfo = response.profileObj || {}; // Adjust according to the actual structure
+        setUserName(userInfo.name || ''); // Fallback to empty string if name is not available
         setIsAuthenticated(true);
     };
 
-    const handleLoginFailure = (response) => {
-        console.log("Login failed:", response);
+    const handleLoginFailure = (error) => {
+        console.log("Login failed:", error);
         setIsAuthenticated(false);
+        setUserName('');
     };
 
     const addCard = (newCard) => {
         if (!isAuthenticated) {
-            setNotification({ message: 'Sign in to add new cards.', isVisible: true, type: 'error' });
+            setNotification({ message: 'Please Sign in to make your docs.', isVisible: true, type: 'error' });
             setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
             return;
         }
@@ -41,9 +45,15 @@ function Fore() {
         setCards([...cards, { ...newCard, id: Date.now(), tag: { ...newCard.tag, isOpen: true } }]);
         setNotification({ message: 'Card added successfully!', isVisible: true, type: 'add' });
         setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
+        setIsModalOpen(false); // Close the modal after adding the card
     };
 
     const deleteCard = (id) => {
+        if (!isAuthenticated) {
+            setNotification({ message: 'Please Sign in to delete cards.', isVisible: true, type: 'error' });
+            setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
+            return;
+        }
         setCards(cards.filter(card => card.id !== id));
         setNotification({ message: 'Card deleted successfully!', isVisible: true, type: 'delete' });
         setTimeout(() => setNotification({ ...notification, isVisible: false }), 3000); // Hide after 3 seconds
@@ -51,22 +61,27 @@ function Fore() {
 
     return (
         <div ref={ref} className='fixed top-0 left-0 z-[3] w-full h-full flex gap-20 flex-wrap p-5'>
-            {/* Google Sign-In Button */}
+            {/* Google Sign-In Button and User Greeting */}
             <div className="fixed top-5 right-5 z-50">
                 {!isAuthenticated ? (
                     <GoogleLogin
                         onSuccess={handleLoginSuccess}
                         onError={handleLoginFailure}
                         buttonText="Sign In with Google"
-                        onClick={() => console.log('Google Sign-In button clicked')}
                     />
                 ) : (
-                    <button
-                        onClick={() => setIsAuthenticated(false)}
-                        className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
-                    >
-                        Sign Out
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <span className="text-white">Hello, {userName}</span>
+                        <button
+                            onClick={() => {
+                                setIsAuthenticated(false);
+                                setUserName('');
+                            }}
+                            className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded"
+                        >
+                            Sign Out
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -76,6 +91,7 @@ function Fore() {
                     data={item}
                     reference={ref}
                     onDelete={() => deleteCard(item.id)}
+                    isAuthenticated={isAuthenticated} // Pass authentication status
                 />
             ))}
             <button
