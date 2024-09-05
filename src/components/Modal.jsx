@@ -49,26 +49,26 @@ function Modal({ isOpen, onClose, onSubmit }) {
                             placeholder="Description"
                             value={desc}
                             onChange={(e) => setDesc(e.target.value)}
-                            className="block w-full mb-2 p-2 border border-gray-300 rounded"
+                            className="block w-full mb-2 p-2 border border-gray-300 rounded text-black"
                         />
                         <input
                             type="text"
                             placeholder="Filesize (.Xmb)"
                             value={filesize}
                             onChange={(e) => setFilesize(e.target.value)}
-                            className="block w-full mb-2 p-2 border border-gray-300 rounded"
+                            className="block w-full mb-2 p-2 border  rounded text-black"
                         />
                         <input
                             type="text"
                             placeholder="Tag Title"
                             value={tagTitle}
                             onChange={(e) => setTagTitle(e.target.value)}
-                            className="block w-full mb-2 p-2 border border-gray-300 rounded"
+                            className="block w-full mb-2 p-2 border border-gray-300 rounded text-black"
                         />
                         <select
                             value={tagColor}
                             onChange={(e) => setTagColor(e.target.value)}
-                            className="block w-full mb-2 p-2 border border-gray-300 rounded"
+                            className="block w-full mb-2 p-2 border border-gray-300 rounded text-black"
                         >
                             <option value="green">Green</option>
                             <option value="blue">Blue</option>
